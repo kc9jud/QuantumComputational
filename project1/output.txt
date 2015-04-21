@@ -1,0 +1,39 @@
+Begin...
+
+Infinite square well:
+	Ground state energy: 134.282476756 eV
+	First excited state energy: 537.129907026 eV
+	Second excited state energy: 1208.54229082 eV
+
+Infinite square well with symmetric step:
+	Ground state energy: 238.843605007 eV
+	First excited state energy: 550.92914638 eV
+	Second excited state energy: 1305.23168078 eV
+
+
+Harmonic Oscillator:
+
+Solving for ground state:
+	Energy: 138.034991371 eV
+Solving for first excited state:
+	Energy: 414.104974112 eV
+Solving for second excited state:
+	Energy: 690.174956854 eV
+Energy difference between:
+	ground state and first excited state:	 276.069982741 eV
+	first and second excited states:	 276.069982742 eV
+
+
+Anharmonic Oscillator:
+
+Solving for ground state:
+	Energy: 205.328758451 eV
+Solving for first excited state:
+	Energy: 735.769557144 eV
+Solving for second excited state:
+	Energy: 1443.72305907 eV
+Energy difference between:
+	ground state and first excited state:	 530.440798693 eV
+	first and second excited states:	 707.953501923 eV
+
+Plotting...
