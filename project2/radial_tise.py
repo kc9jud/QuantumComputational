@@ -152,13 +152,27 @@ class RadialSolver:
         # Convert back from y(x) to chi(x)
         return points*np.sqrt(self.rgrid)
     
+    def normalize(self):
+        integrand = self.solution_points**2 * self.rgrid
+        integ = integrate.simps(integrand, self.xgrid)
+        self.solution_points = self.solution_points / np.sqrt(integ)
+    
     def solve(self):
         energy = rootfind.hybrid_secant(f = self.calculate_kink,
                         root_interval = (self.Emin,self.Emax),
 #                        tolerance = 1e-8,
                         verbose = self.verbose)
+
+        l_points = self.solve_ode(energy, direction='right')
+        r_points = self.solve_ode(energy, direction='left')
         
-        self.solution_points = self.solve_ode(energy)
+        points = np.zeros_like(self.xgrid)
+        points[:self.turnpoint_index] = l_points[:self.turnpoint_index] 
+        points[self.turnpoint_index:] = (r_points[self.turnpoint_index:] * 
+                          (l_points[self.turnpoint_index]/r_points[self.turnpoint_index]))
+
+        self.solution_points = points
+        self.normalize()
         self.solution_energy = energy
         
         return energy
@@ -184,11 +198,16 @@ if __name__ == "__main__":
     energy = solver.solve()
     print("E=",energy)
     
-    left_points = solver.solve_ode(energy, direction='right')
-    right_points = solver.solve_ode(energy, direction='left')
+    left_points = np.zeros_like(solver.xgrid)
+    left_points[:solver.turnpoint_index] = solver.solution_points[:solver.turnpoint_index]
+    right_points = np.zeros_like(solver.xgrid)
+    right_points[solver.turnpoint_index:] = solver.solution_points[solver.turnpoint_index:]
     
-    right_points = right_points * (left_points[solver.turnpoint_index]/right_points[solver.turnpoint_index])
-    
+#     left_points = solver.solve_ode(energy, direction='right')
+#     right_points = solver.solve_ode(energy, direction='left')
+#     
+#     right_points = right_points * (left_points[solver.turnpoint_index]/right_points[solver.turnpoint_index])
+#     
     plt.plot(solver.xgrid,left_points, marker='.')
     plt.plot(solver.xgrid,right_points, marker='.')
     plt.show()
