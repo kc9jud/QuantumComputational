@@ -29,3 +29,25 @@ M_P = 1836 # kg
 BOHR = 1 # m
 EV = 1/27.211 # hartree
 #############################
+
+class ScatteringSolver:
+    def __init__(self, V, E, a):
+        pass
+    
+    def gen_rgrid(self):
+        pass
+    
+    def solve(self):
+        pass
+    
+    def solve_ode(self, l):
+        pass
+    
+    def calc_phase_shift(self, l, points):
+        pass
+    
+    def f(self, theta):
+        pass
+    
+    def diff_cross_sect(self, theta):
+        pass
