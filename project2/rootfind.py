@@ -328,6 +328,7 @@ def discrete(ypoints, nroot, verbose=False):
             else:
                 n += 1
         i += 1
+    return None
 
 # test code
 if (__name__ == "__main__"):
