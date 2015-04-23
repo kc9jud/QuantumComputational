@@ -31,11 +31,23 @@ EV = 1/27.211 # hartree
 #############################
 
 class ScatteringSolver:
-    def __init__(self, V, E, a):
-        pass
+    xmin = 0.5 # starting position in r/a
+    xmax = 10  # ending position in r/a
+    xn   = 100 # number of steps
     
-    def gen_rgrid(self):
-        pass
+    def __init__(self, V, E, a, mass, num_steps=None):
+        self.V = V
+        self.E = E
+        self.a = a
+        self.mass = mass
+        
+        if num_steps is not None:
+            self.xn = num_steps
+        
+        self.ki = np.sqrt(2*m*E)/H_BAR
+        
+        self.gen_grids()
+        
     
     def solve(self):
         pass
