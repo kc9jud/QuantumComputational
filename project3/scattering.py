@@ -49,13 +49,27 @@ class ScatteringSolver:
         self.gen_grids()
         
     
-    def solve(self):
+    def gen_grid(self):
+        self.rgrid,self.stepsize = self.a * np.linspace(self.xmin,
+                                                        self.xmax,
+                                                        self.xn+1,retstep=True)
+        
+    
+    def k(self, r):
         pass
+    
+    def schrod_eqn(self, r, E):
+        consts = 2*self.mass / H_BAR**2
+        g = consts*(E - self.V(r)) - self.l*(self.l+1)
+        return g
     
     def solve_ode(self, l):
         pass
     
     def calc_phase_shift(self, l, points):
+        pass
+    
+    def solve(self):
         pass
     
     def f(self, theta):
