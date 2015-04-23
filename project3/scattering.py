@@ -31,14 +31,37 @@ EV = 1/27.211 # hartree
 #############################
 
 class ScatteringSolver:
-    def __init__(self, V, E, a):
+    xmin = 0.5 # starting position in r/a
+    xmax = 10  # ending position in r/a
+    xn   = 100 # number of steps
+    
+    def __init__(self, V, E, a, mass, num_steps=None):
+        self.V = V
+        self.E = E
+        self.a = a
+        self.mass = mass
+        
+        if num_steps is not None:
+            self.xn = num_steps
+        
+        self.ki = np.sqrt(2*m*E)/H_BAR
+        
+        self.gen_grids()
+        
+    
+    def gen_grid(self):
+        self.rgrid,self.stepsize = self.a * np.linspace(self.xmin,
+                                                        self.xmax,
+                                                        self.xn+1,retstep=True)
+        
+    
+    def k(self, r):
         pass
     
-    def gen_rgrid(self):
-        pass
-    
-    def solve(self):
-        pass
+    def schrod_eqn(self, r, E):
+        consts = 2*self.mass / H_BAR**2
+        g = consts*(E - self.V(r)) - self.l*(self.l+1)
+        return g
     
     def solve_ode(self, l):
         pass
@@ -55,6 +78,9 @@ class ScatteringSolver:
 	#scipy.special.yn(l,k*r)
 	#tan^-1 of 3.19
 	delta = numpy.arctan( (K*scipy.special.jv(l,k*r2)-scipy.special.jv(l,k*r1))/(K*scipy.special.yn(l,k*r2)-scipy.special.yn(l,k*r1)) )
+        pass
+    
+    def solve(self):
         pass
     
     def f(self, theta):
