@@ -67,18 +67,20 @@ class ScatteringSolver:
         pass
     
     def calc_phase_shift(self, l, points):
-	#set up r1 and r2 using a
-	#pick out X(r1) and X(r2)
-	chi1 = points[r1, 1]
-	chi2 = points[r2, 1]
-	#find K
-	K = r2*chi1/(r1*chi2)
-	#Get correct Bessel functions jl and nl and plug in r values
-	#scipy.special.jv(l,k*r)
-	#scipy.special.yn(l,k*r)
-	#tan^-1 of 3.19
-	delta = numpy.arctan( (K*scipy.special.jv(l,k*r2)-scipy.special.jv(l,k*r1))/(K*scipy.special.yn(l,k*r2)-scipy.special.yn(l,k*r1)) )
-        pass
+        #set up r1 and r2 using a
+        #pick out X(r1) and X(r2)
+        chi1 = points[r1, 1]
+        chi2 = points[r2, 1]
+        
+        #find K
+        K = (r2*chi1)/(r1*chi2)
+        
+        #Get correct Bessel functions jl and nl and plug in r values
+        #scipy.special.jv(l,k*r)
+        #scipy.special.yn(l,k*r)
+        #tan^-1 of 3.19
+        delta = numpy.arctan( (K*scipy.special.jv(l,k*r2)-scipy.special.jv(l,k*r1)) /
+                              (K*scipy.special.yn(l,k*r2)-scipy.special.yn(l,k*r1)) )
     
     def solve(self):
         pass
