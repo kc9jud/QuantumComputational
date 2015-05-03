@@ -94,7 +94,7 @@ class ScatteringSolver:
             shift = self.calc_phase_shift(l, points)
             temp_li.append(shift)
             l += 1
-        self.phase_shifts = np.array(temp_l
+        self.phase_shifts = np.array(temp_li)
     
     def f(self, theta):
         pass
