@@ -54,8 +54,9 @@ class ScatteringSolver:
                                                         self.xmax,
                                                         self.xn+1,retstep=True)
     
-    def k(self, r):
-        k = sqrt( (2*self.mass/H_BAR**2)(self.E - self.V(r)) )
+    def k(self, r, l):
+#        k = sqrt( (2*self.mass/H_BAR**2)(self.E - self.V(r)) )
+        k = sqrt(self.schrod_eqn(r, l))
         return k
     
     def schrod_eqn(self, r, l):
@@ -96,8 +97,8 @@ class ScatteringSolver:
         #scipy.special.jv(l,k*r)
         #scipy.special.yn(l,k*r)
         #tan^-1 of 3.19
-        delta = numpy.arctan( (K*scipy.special.jv(l,k*r2)-scipy.special.jv(l,k*r1)) /
-                              (K*scipy.special.yn(l,k*r2)-scipy.special.yn(l,k*r1)) )
+        delta = numpy.arctan( (K*scipy.special.jv(l,self.k(r2,l)*r2)-scipy.special.jv(l,self.k(r1,l)*r1)) /
+                              (K*scipy.special.yn(l,self.k(r2,l)*r2)-scipy.special.yn(l,self.k(r1,l)*r1)) )
         return delta    
 
     def solve(self):
