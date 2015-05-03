@@ -31,7 +31,7 @@ EV = 1/27.211 # hartree
 #############################
 
 class ScatteringSolver:
-    xmin = 0.5 # starting position in r/a
+    xmin = 0 # starting position in r/a
     xmax = 10  # ending position in r/a
     xn   = 100 # number of steps
     
@@ -53,18 +53,34 @@ class ScatteringSolver:
         self.rgrid,self.stepsize = self.a * np.linspace(self.xmin,
                                                         self.xmax,
                                                         self.xn+1,retstep=True)
-        
     
     def k(self, r):
         pass
     
-    def schrod_eqn(self, r, E):
+    def schrod_eqn(self, r, l):
         consts = 2*self.mass / H_BAR**2
-        g = consts*(E - self.V(r)) - self.l*(self.l+1)
+        g = consts*(self.E - self.V(r)) - l*(l+1)
         return g
     
     def solve_ode(self, l):
-        pass
+        if self.verbose:
+            print("Calculating points...")
+        
+        # Set up initial conditions
+        # We can't start at r=0, because the centrifugal term will diverge. Instead,
+        # we use the central difference formula for the second derivative and X(0)=0
+        # to write an (worse) approximation for the third point.
+        points = numpy.zeros_like(self.rgrid)
+        points[1] = 1e-12 # This is an arbitrary -- it sets the normalization.
+        points[2] = 2 * points[1] * (1 + self.schrod_eqn(self.rgrid[1],l)*self.stepsize)
+
+        points = ode.numerov(self.schrod_eqn, x_grid = self.xgrid, y_grid=points
+                             start_index=1, end_index = endpoint,
+                             verbose=self.verbose, l=l)
+        # Convert back from y(x) to chi(x)
+#        return points*np.sqrt(self.rgrid)
+        return points
+
     
     def calc_phase_shift(self, l, points):
         #set up r1 and r2 using a

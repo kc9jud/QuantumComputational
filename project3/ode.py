@@ -44,17 +44,30 @@ def solve(f_eq,dep_i,interval,order=1,return_points=False, **kwargs):
   else:
     return r
 
-def numerov(g_eq,i0,i_slope,x_grid,direction='right',end_index=None,stepsize=None,verbose=False,**kwargs):
+def numerov(g_eq, x_grid, y_grid,
+            start_index=None, end_index=None, stepsize=None,
+            direction='right', verbose=False, **kwargs):
   if direction=='left':
     index_step = -1
-    index_start = len(x_grid)-1
+    
+    if start_index:
+        index_start = start_index
+    else:
+        index_start = len(x_grid)-1
+    
     if end_index:
       index_stop = end_index
     else:
       index_stop = 0
+
   else:
     index_step = 1
-    index_start = 0
+    
+    if start_index:
+        index_start = start_index
+    else:
+        index_start = 0
+    
     if end_index:
       index_stop = end_index
     else:
@@ -65,9 +78,7 @@ def numerov(g_eq,i0,i_slope,x_grid,direction='right',end_index=None,stepsize=Non
   else:
     h = stepsize
   
-  y = np.zeros_like(x_grid)
-  y[index_start] = i0
-  y[index_start + index_step] = i0+ (index_step * i_slope*h)
+  y = y_grid
   
   fn = 1 + g_eq(x_grid, **kwargs) * (h**2)/12
   
