@@ -55,7 +55,8 @@ class ScatteringSolver:
                                                         self.xn+1,retstep=True)
     
     def k(self, r):
-        pass
+        k = sqrt( (2*self.mass/H_BAR**2)(self.E - self.V(r)) )
+        return k
     
     def schrod_eqn(self, r, l):
         consts = 2*self.mass / H_BAR**2
@@ -97,9 +98,19 @@ class ScatteringSolver:
         #tan^-1 of 3.19
         delta = numpy.arctan( (K*scipy.special.jv(l,k*r2)-scipy.special.jv(l,k*r1)) /
                               (K*scipy.special.yn(l,k*r2)-scipy.special.yn(l,k*r1)) )
-    
+        return delta    
+
     def solve(self):
-        pass
+        l = 0
+        rmax = a
+        lmax = sqrt(shrod_eqn(rmax))*rmax
+        temp_li = [] 
+        while l<=lmax:
+            points = self.solve_ode(l)
+            shift = self.calc_phase_shift(l, points)
+            temp_li.append(shift)
+            l += 1
+        self.phase_shifts = np.array(temp_li)
     
     def f(self, theta):
         pass
