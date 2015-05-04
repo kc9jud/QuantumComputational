@@ -8,6 +8,7 @@
 
 import numpy as np
 import scipy.integrate as integrate
+import scipy.special as special
 import matplotlib.pyplot as plt
 import functools
 
@@ -35,19 +36,19 @@ class ScatteringSolver:
     xmax = 10  # ending position in r/a
     xn   = 100 # number of steps
     
-    def __init__(self, V, E, a, mass, num_steps=None):
+    def __init__(self, V, E, a, mass, num_steps=None, verbose=False):
         self.V = V
         self.E = E
         self.a = a
         self.mass = mass
+        self.verbose = verbose
         
         if num_steps is not None:
             self.xn = num_steps
         
-        self.ki = np.sqrt(2*m*E)/H_BAR
+        self.ki = np.sqrt(2*mass*E)/H_BAR
         
-        self.gen_grids()
-        
+        self.gen_grid()
     
     def gen_grid(self):
         self.rgrid,self.stepsize = self.a * np.linspace(self.xmin,
@@ -103,8 +104,8 @@ class ScatteringSolver:
 
     def solve(self):
         l = 0
-        rmax = a
-        lmax = sqrt(shrod_eqn(rmax))*rmax
+        rmax = self.a
+        lmax = np.ceil(np.sqrt(self.ki)*rmax)
         temp_li = [] 
         while l<=lmax:
             points = self.solve_ode(l)
@@ -118,3 +119,18 @@ class ScatteringSolver:
     
     def diff_cross_sect(self, theta):
         pass
+
+def V(r):
+    return 50/(1+np.exp((r-.4)/.06))
+
+solv = ScatteringSolver(V, 10, 1, 1)
+solv.solve()
+print(solv.phase_shifts)
+
+solv_np = ScatteringSolver(np.zeros_like, 10, 1, 1)
+for l in range(len(solv.phase_shifts)):
+    points = solv.solve_ode(l)[1:]/solv.rgrid[1:]
+    plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
+    points = solv_np.solve_ode(l)[1:]/solv.rgrid[1:]
+    plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
+    plt.show()
