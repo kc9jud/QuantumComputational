@@ -97,11 +97,17 @@ class ScatteringSolver:
         K = (r2*chi1)/(r1*chi2)
         
         #Get correct Bessel functions jl and nl and plug in r values
-        #scipy.special.jv(l,k*r)
-        #scipy.special.yn(l,k*r)
+        #special.sph_jn(l,k*r)
+        #special.sph_yn(l,k*r)
+        # These functions actually return a list of two arrays:
+        #  - an array containing all jn up to l
+        #  - an array containing all jn' up to l
         #tan^-1 of 3.19
-        delta = numpy.arctan( (K*scipy.special.jv(l,self.k(r2,l)*r2)-scipy.special.jv(l,self.k(r1,l)*r1)) /
-                              (K*scipy.special.yn(l,self.k(r2,l)*r2)-scipy.special.yn(l,self.k(r1,l)*r1)) )
+        jn1 = special.sph_jn(l,self.ki*r1)[0][-1]
+        yn1 = special.sph_yn(l,self.ki*r1)[0][-1]
+        jn2 = special.sph_jn(l,self.ki*r2)[0][-1]
+        yn2 = special.sph_yn(l,self.ki*r2)[0][-1]
+        delta = np.arctan((K*jn2-jn1) / (K*yn2-yn1))
         return delta    
 
     def solve(self):
