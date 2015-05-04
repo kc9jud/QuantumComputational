@@ -73,15 +73,13 @@ class ScatteringSolver:
         # We can't start at r=0, because the centrifugal term will diverge. Instead,
         # we use the central difference formula for the second derivative and X(0)=0
         # to write an (worse) approximation for the third point.
-        points = numpy.zeros_like(self.rgrid)
-        points[1] = 1e-12 # This is an arbitrary -- it sets the normalization.
-        points[2] = 2 * points[1] * (1 + self.schrod_eqn(self.rgrid[1],l)*self.stepsize)
+        points = np.zeros_like(self.rgrid)
+        points[1] = 1/self.stepsize # This is an arbitrary -- it sets the normalization.
+        points[2] = points[1] * (2 - self.schrod_eqn(self.rgrid[1],l)*(self.stepsize**2))
 
-        points = ode.numerov(self.schrod_eqn, x_grid = self.xgrid, y_grid=points
-                             start_index=1, end_index = endpoint,
+        points = ode.numerov(self.schrod_eqn, x_grid = self.rgrid, y_grid=points,
+                             start_index=1, end_index = self.xn,
                              verbose=self.verbose, l=l)
-        # Convert back from y(x) to chi(x)
-#        return points*np.sqrt(self.rgrid)
         return points
 
     
