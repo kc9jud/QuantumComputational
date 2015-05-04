@@ -62,7 +62,7 @@ class ScatteringSolver:
     
     def schrod_eqn(self, r, l):
         consts = 2*self.mass / H_BAR**2
-        g = consts*(self.E - self.V(r)) - l*(l+1)
+        g = consts*(self.E - self.V(r)) - l*(l+1)/r**2
         return g
     
     def solve_ode(self, l):
