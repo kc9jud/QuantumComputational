@@ -123,8 +123,8 @@ class ScatteringSolver:
     def solve(self):
         l = 0
         rmax = self.a
-        lmax = np.ceil(np.sqrt(self.ki)*rmax)
-        temp_li = [] 
+        lmax = 2*np.ceil(self.ki*rmax)
+        temp_li = []
         while l<=lmax:
             points = self.solve_ode(l)
             shift = self.calc_phase_shift(l, points)
