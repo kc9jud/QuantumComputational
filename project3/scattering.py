@@ -95,7 +95,8 @@ class ScatteringSolver:
     def calc_phase_shift(self, l, points):
         #set up r1 and r2 using a
         r2 = self.rgrid[-1]
-        r1_index = -int(self.xn/10)
+        wavelength = 2*np.pi/self.ki
+        r1_index = -int(2*wavelength/self.stepsize)
         r1 = self.rgrid[r1_index]
         
         #pick out X(r1) and X(r2)
