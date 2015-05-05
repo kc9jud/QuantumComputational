@@ -170,27 +170,23 @@ class ScatteringSolver:
 
 
 def V(r):
-    return 50/(1+np.exp((r-.4)/.06))
+    # Here's a nice Woods-Saxon potential
+    return -50/(1+np.exp((r-.5)/.05))
 
-solv = ScatteringSolver(V, 10, 1, 1)
+solv = ScatteringSolver(V, 3, 1, 1)
 solv.solve()
+solv.plot_potential()
+solv.plot_wave_functions()
+solv.plot_diff_cross_sect()
 print(solv.phase_shifts)
 
-egrid = np.linspace(.01,100,250)
+egrid = np.logspace(-2,4,500)
 points = []
 for en in egrid:
-    solv = ScatteringSolver(np.zeros_like, en, 1, 1)
+    solv = ScatteringSolver(V, en, 1, 1)
     solv.solve()
     points.append(solv.total_cross_sect())
 plt.plot(egrid,points, marker='.')
+plt.xscale('log')
+plt.yscale('log')
 plt.show()
-
-# solv = ScatteringSolver(V, .1, 1, 1)
-# solv.solve()
-# solv_np = ScatteringSolver(np.zeros_like, .1, 1, 1)
-# for l in range(len(solv.phase_shifts)):
-#     points = solv.solve_ode(l)[1:]/solv.rgrid[1:]
-#     plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
-#     points = solv_np.solve_ode(l)[1:]/solv.rgrid[1:]
-#     plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
-#     plt.show()
