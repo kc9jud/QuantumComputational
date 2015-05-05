@@ -150,6 +150,24 @@ class ScatteringSolver:
             retval += (2*l+1)*(np.sin(delta))**2
             l += 1
         return 4*np.pi/self.ki**2 * retval
+    
+    def plot_potential(self, **kwargs):
+        plt.plot(self.rgrid, self.V(solv.rgrid), marker='.', **kwargs)
+        plt.show()
+    
+    def plot_wave_functions(self, **kwargs):
+        rgrid = self.rgrid[1:]
+        for l in range(len(self.phase_shifts)):
+            points = self.solve_ode(l)[1:]/rgrid
+            plt.plot(rgrid,points/np.max(points), marker='.', label="l="+str(l), **kwargs)
+        plt.show()
+    
+    def plot_diff_cross_sect(self, **kwargs):
+        tgrid = np.linspace(-np.pi,np.pi,361)
+        plt.polar(tgrid,self.diff_cross_sect(tgrid), marker='.', **kwargs)
+        plt.show()
+
+
 
 def V(r):
     return 50/(1+np.exp((r-.4)/.06))
