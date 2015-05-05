@@ -148,10 +148,21 @@ solv = ScatteringSolver(V, 10, 1, 1)
 solv.solve()
 print(solv.phase_shifts)
 
-solv_np = ScatteringSolver(np.zeros_like, 10, 1, 1)
-for l in range(len(solv.phase_shifts)):
-    points = solv.solve_ode(l)[1:]/solv.rgrid[1:]
-    plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
-    points = solv_np.solve_ode(l)[1:]/solv.rgrid[1:]
-    plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
-    plt.show()
+egrid = np.linspace(.01,100,250)
+points = []
+for en in egrid:
+    solv = ScatteringSolver(np.zeros_like, en, 1, 1)
+    solv.solve()
+    points.append(solv.total_cross_sect())
+plt.plot(egrid,points, marker='.')
+plt.show()
+
+# solv = ScatteringSolver(V, .1, 1, 1)
+# solv.solve()
+# solv_np = ScatteringSolver(np.zeros_like, .1, 1, 1)
+# for l in range(len(solv.phase_shifts)):
+#     points = solv.solve_ode(l)[1:]/solv.rgrid[1:]
+#     plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
+#     points = solv_np.solve_ode(l)[1:]/solv.rgrid[1:]
+#     plt.plot(solv.rgrid[1:],points/np.max(points), marker='.')
+#     plt.show()
