@@ -123,10 +123,23 @@ class ScatteringSolver:
         self.phase_shifts = np.array(temp_li)
     
     def f(self, theta):
-        pass
+        retval = 0
+        l=0
+        for delta in self.phase_shifts:
+            retval += (2*l+1)*np.exp(1j*delta)*np.sin(delta)*special.eval_legendre(l,np.cos(theta))
+            l += 1
+        return retval/self.ki
     
     def diff_cross_sect(self, theta):
-        pass
+        return np.abs(self.f(theta))**2
+    
+    def total_cross_sect(self):
+        retval = 0
+        l = 0
+        for delta in self.phase_shifts:
+            retval += (2*l+1)*(np.sin(delta))**2
+            l += 1
+        return 4*np.pi/self.ki**2 * retval
 
 def V(r):
     return 50/(1+np.exp((r-.4)/.06))
