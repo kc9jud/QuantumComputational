@@ -53,15 +53,16 @@ class ScatteringSolver:
     
     def gen_grid(self):
         wavelength = 2*np.pi/self.ki
+        self.xmax = self.xmax*self.a
         # we need to integrate at least to four wavelengths
-        self.xmax = max(self.xmax, 3./self.a * wavelength)
+        self.xmax = max(self.xmax, 3*wavelength)
         # we want at least the default value for xn, but also at least 
         # 10 points per wavelength -- this matters for high-energy scattering
-        self.xn = max(self.xn, int(np.ceil((10*self.a/wavelength) * (self.xmax-self.xmin))))
-        # we need a minimum density of points, at least 20 points between x=0 and x=1
-        self.xn = max(self.xn, int(20*self.xmax))
-        
-        self.rgrid,self.stepsize = self.a * np.array(np.linspace(self.xmin,
+        self.xn = max(self.xn, int(np.ceil((10/wavelength) * (self.xmax-self.xmin))))
+        # we need a minimum density of points, at least 20 points between x=0 and x=a
+        self.xn = max(self.xn, int(20*self.xmax/self.a))
+        print(self.xmin,self.xmax,self.xn)
+        self.rgrid,self.stepsize = np.array(np.linspace(self.xmin,
                                                         self.xmax,
                                                         self.xn+1,retstep=True))
     
