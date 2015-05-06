@@ -16,11 +16,11 @@ import ode
 import rootfind
 
 # ##########CONSTANTS##########
-# H_BAR = 1.05457e-34 # J s
-# M_E = 9.10938e-31 # kg
-# M_P = 1.67262e-27 # kg
-# BOHR = 5.29177e-11 # m
-# EV = 1.602177e-19 # J
+#H_BAR = 1.05457e-34 # J s
+#M_E = 9.10938e-31 # kg
+#M_P = 1.67262e-27 # kg
+#BOHR = 5.29177e-11 # m
+#EV = 1.602177e-19 # J
 # #############################
 
 ##########CONSTANTS##########
@@ -29,6 +29,7 @@ M_E = 1 #
 M_P = 1836 # kg
 BOHR = 1 # m
 EV = 1/27.211 # hartree
+ANGSTROM = 1.889726124*BOHR
 #############################
 
 class ScatteringSolver:
@@ -60,21 +61,48 @@ class ScatteringSolver:
         # we need a minimum density of points, at least 20 points between x=0 and x=1
         self.xn = max(self.xn, int(20*self.xmax))
         
-        self.rgrid,self.stepsize = self.a * np.linspace(self.xmin,
+        self.rgrid,self.stepsize = self.a * np.array(np.linspace(self.xmin,
                                                         self.xmax,
-                                                        self.xn+1,retstep=True)
+                                                        self.xn+1,retstep=True))
     
     def k(self, r, l):
+        """Finds the wave number, k, based on the radius and l value
+        using the Schrodinger equation.
+
+        Arguments:
+           r: radius
+           l: angular momentum number
+        Returns:
+           k: wave number
+        """
 #        k = sqrt( (2*self.mass/H_BAR**2)(self.E - self.V(r)) )
         k = sqrt(self.schrod_eqn(r, l))
         return k
     
     def schrod_eqn(self, r, l):
+        """Defines the Schrodinger equation.
+
+        Arguments:
+           r: radius
+           l: angular momentum number
+        Returns:
+           g: value of the Schrodinger equation
+        """
+
         consts = 2*self.mass / H_BAR**2
         g = consts*(self.E - self.V(r)) - l*(l+1)/r**2
         return g
     
     def solve_ode(self, l):
+        """Solves the Schrodinger equation for a given l value using the Numerov method
+        in the ode module.
+
+        Arguments:
+           l: angular momentum number
+        Returns:
+           points: set of points containing the solution to the Schrodinger equation
+        """
+
         if self.verbose:
             print("Calculating points...")
         
@@ -93,7 +121,16 @@ class ScatteringSolver:
 
     
     def calc_phase_shift(self, l, points):
-        #set up r1 and r2 using a
+        """Finds the phase shift of the wavelength using the method described in Gianozzi.
+	
+        Arguments:
+           l: angular momentum number
+           points: the array holding the solution to the Schrodinger equation
+        Returns:
+           delta: the phase shift
+        """
+
+	#set up r1 and r2 using a
         r2 = self.rgrid[-1]
         wavelength = 2*np.pi/self.ki
         r1_index = -int(2*wavelength/self.stepsize)
@@ -121,6 +158,10 @@ class ScatteringSolver:
         return delta    
 
     def solve(self):
+        """Finds the phase shifts for a number of different l values.
+        Stores the resultant phase shifts in phase_shifts
+        """
+
         l = 0
         rmax = self.a
         lmax = 2*np.ceil(self.ki*rmax)
@@ -133,6 +174,14 @@ class ScatteringSolver:
         self.phase_shifts = np.array(temp_li)
     
     def f(self, theta):
+        """
+
+        Arguments:
+           theta:
+        Returns:
+           retval/ki:
+        """
+
         retval = 0
         l=0
         for delta in self.phase_shifts:
@@ -144,6 +193,12 @@ class ScatteringSolver:
         return np.abs(self.f(theta))**2
     
     def total_cross_sect(self):
+        """Sums up the phase shifts in order to find the cross section.
+
+        Returns:
+           Cross section
+        """
+
         retval = 0
         l = 0
         for delta in self.phase_shifts:
@@ -152,10 +207,28 @@ class ScatteringSolver:
         return 4*np.pi/self.ki**2 * retval
     
     def plot_potential(self, **kwargs):
+        """Plots the current potential data when called.
+
+        Arguments:
+           **kwargs: Any additional arguments to plot
+        Returns:
+           Displays the plot
+        """
+
         plt.plot(self.rgrid, self.V(solv.rgrid), marker='.', **kwargs)
+        plt.yscale('log')
         plt.show()
     
     def plot_wave_functions(self, **kwargs):
+        """Displays a plot of the wave functions. Nice for watching the phase shift decrease
+        and the wavefunctions align.
+
+        Arguments:
+           **kwargs: Any additional plotting arguments
+        Returns:
+           Displays plot
+        """
+
         rgrid = self.rgrid[1:]
         for l in range(len(self.phase_shifts)):
             points = self.solve_ode(l)[1:]/rgrid
@@ -163,17 +236,38 @@ class ScatteringSolver:
         plt.show()
     
     def plot_diff_cross_sect(self, **kwargs):
+        """Displays a plot of the differential cross section.
+
+        Arguments:
+           **kwargs: Any additional arguments to plot
+        Returns:
+           Displays the plot
+        """
+
         tgrid = np.linspace(-np.pi,np.pi,361)
         plt.polar(tgrid,self.diff_cross_sect(tgrid), marker='.', **kwargs)
         plt.show()
 
-
-
 def V(r):
-    # Here's a nice Woods-Saxon potential
-    return -50/(1+np.exp((r-.5)/.05))
+    """Defines the potential function used. Options are Woods-Saxon, Lennard-Jones, and
+    Yukawa potentials.
 
-solv = ScatteringSolver(V, 3, 1, 1)
+    Arguments:
+       r: radius
+    Returns:
+       Potential value
+    """
+
+    # Here's a nice Woods-Saxon potential
+#    return -50/(1+np.exp((r-.5)/.05))
+    #Here's a not nice Lennard-Jones potential
+    eps = 5.9e-3*EV
+    sig = 3.57*ANGSTROM
+    return eps*( ((sig/r)**12)-2*((sig/r))**6 )
+    #Yukawa potential
+#    return -np.exp(-M_E*r)/r
+
+solv = ScatteringSolver(V, 3, 3.57*ANGSTROM, 1)
 solv.solve()
 solv.plot_potential()
 solv.plot_wave_functions()
@@ -183,7 +277,7 @@ print(solv.phase_shifts)
 egrid = np.logspace(-2,4,500)
 points = []
 for en in egrid:
-    solv = ScatteringSolver(V, en, 1, 1)
+    solv = ScatteringSolver(V, en, 3.57*ANGSTROM, 1)
     solv.solve()
     points.append(solv.total_cross_sect())
 plt.plot(egrid,points, marker='.')
