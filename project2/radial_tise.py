@@ -214,9 +214,21 @@ if __name__ == "__main__":
     plt.show()
     
     
+    def V_Yuk(r):
+        return -50/(1+np.exp((r-1)/.05))
     
-    
-    solver = RadialSolver(V, (-.75,-0.2), 1, 1*BOHR, M_E)
+    solver = RadialSolver(V_Yuk, (-41,-39), 1, 1*BOHR, M_E, verbose=False)
+    plt.plot(solver.xgrid, V_Yuk(solver.rgrid), marker='.')
+    plt.show()
+    print("Plotting kink vs. E...")
+    Epoints=np.linspace(-45,-1,500)
+    kpoints=[]
+    for ep in Epoints:
+        kpoints.append(solver.calculate_kink(ep))
+    plt.plot(Epoints,kpoints, marker='.')
+    plt.show()
+
     energy = solver.solve()
     print("E=",energy)
-    
+    plt.plot(solver.rgrid, solver.solution_points, marker='.')
+    plt.show()
