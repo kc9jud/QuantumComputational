@@ -35,7 +35,7 @@ ANGSTROM = 1.889726124*BOHR
 class ScatteringSolver:
     xmin = 0 # starting position in r/a
     xmax = 10  # ending position in r/a
-    xn   = 100 # number of steps
+    xn   = 500 # number of steps
     
     def __init__(self, V, E, a, mass, num_steps=None, verbose=False):
         self.V = V
@@ -61,7 +61,6 @@ class ScatteringSolver:
         self.xn = max(self.xn, int(np.ceil((10/wavelength) * (self.xmax-self.xmin))))
         # we need a minimum density of points, at least 20 points between x=0 and x=a
         self.xn = max(self.xn, int(20*self.xmax/self.a))
-        print(self.xmin,self.xmax,self.xn)
         self.rgrid,self.stepsize = np.array(np.linspace(self.xmin,
                                                         self.xmax,
                                                         self.xn+1,retstep=True))
@@ -158,14 +157,15 @@ class ScatteringSolver:
         delta = np.arctan((K*jn2-jn1) / (K*yn2-yn1))
         return delta    
 
-    def solve(self):
+    def solve(self, lmax=None):
         """Finds the phase shifts for a number of different l values.
         Stores the resultant phase shifts in phase_shifts
         """
 
         l = 0
         rmax = self.a
-        lmax = 2*np.ceil(self.ki*rmax)
+        if lmax is None:
+            lmax = 2*np.ceil(self.ki*rmax)
         temp_li = []
         while l<=lmax:
             points = self.solve_ode(l)
@@ -217,7 +217,6 @@ class ScatteringSolver:
         """
 
         plt.plot(self.rgrid, self.V(solv.rgrid), marker='.', **kwargs)
-        plt.yscale('log')
         plt.show()
     
     def plot_wave_functions(self, **kwargs):
@@ -249,8 +248,8 @@ class ScatteringSolver:
         plt.polar(tgrid,self.diff_cross_sect(tgrid), marker='.', **kwargs)
         plt.show()
 
-def V(r):
-    """Defines the potential function used. Options are Woods-Saxon, Lennard-Jones, and
+def V_WS(r):
+    """Defines the Woods-Saxon potential function. Options are , Lennard-Jones, and
     Yukawa potentials.
 
     Arguments:
@@ -260,28 +259,60 @@ def V(r):
     """
 
     # Here's a nice Woods-Saxon potential
-#    return -50/(1+np.exp((r-.5)/.05))
-    #Here's a not nice Lennard-Jones potential
-    eps = 5.9e-3*EV
-    sig = 3.57*ANGSTROM
-    return eps*( ((sig/r)**12)-2*((sig/r))**6 )
-    #Yukawa potential
-#    return -np.exp(-M_E*r)/r
+    return -50/(1+np.exp((r-.5)/.05))
 
-solv = ScatteringSolver(V, 3, 3.57*ANGSTROM, 1)
-solv.solve()
+eps = 5.9e-3*EV
+sig = 3.57*ANGSTROM
+def V_LJ(r):
+    """Defines the Lennard-Jones potential function.
+    
+    Arguments:
+       r: radius
+    Returns:
+       Potential value
+    """
+
+    #Here's a not nice Lennard-Jones potential
+    return eps*( ((sig/r)**12) - 2*((sig/r)**6))
+
+def V_Yuk(r):
+    """Defines the Yukawa potential function.
+    
+    Arguments:
+       r: radius
+    Returns:
+       Potential value
+    """
+
+    #Yukawa potential
+    return -np.exp(-r)/r
+
+#For Lennard-Jones
+solv = ScatteringSolver(V_LJ, 1e-4*EV, .5*3.57*ANGSTROM, 1816)
+solv.solve(lmax=6)
+#For Woods-Saxon
+#solv = ScatteringSolver(V_WS, 3, 1, 1)
+#For Yukawa
+#solv = ScatteringSolver(V_Yuk, 3, 0.25, 1)
+#solv.solve()
 solv.plot_potential()
 solv.plot_wave_functions()
 solv.plot_diff_cross_sect()
 print(solv.phase_shifts)
 
-egrid = np.logspace(-2,4,500)
+#egrid = np.logspace(-5,3,750)
+#Lennard-Jones
+egrid = np.logspace(np.log10(1e-4*EV),np.log10(3e-3*EV),750)
 points = []
 for en in egrid:
-    solv = ScatteringSolver(V, en, 3.57*ANGSTROM, 1)
-    solv.solve()
+    #For Lennard-Jones
+    solv = ScatteringSolver(V_LJ, en, .5*3.57*ANGSTROM, 1816)
+    #For Woods-Saxon
+    #solv = ScatteringSolver(V_WS, en, 1, 1)
+    #For Yukawa
+    #solv = ScatteringSolver(V_Yuk, en, 0.5, 1)
+    solv.solve(lmax=25)
     points.append(solv.total_cross_sect())
-plt.plot(egrid,points, marker='.')
+plt.plot(egrid/(1e-3*EV),points, marker='.')
 plt.xscale('log')
-plt.yscale('log')
 plt.show()
