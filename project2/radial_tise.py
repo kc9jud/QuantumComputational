@@ -118,13 +118,8 @@ class RadialSolver:
         i = self.turnpoint_index
         h = self.stepsize
         
-        l_points = self.solve_ode(E, direction='right')
-        r_points = self.solve_ode(E, direction='left')
+        points = self.solve_ode(E)
         
-        points = np.zeros_like(self.xgrid)
-        points[:self.turnpoint_index] = l_points[:self.turnpoint_index] 
-        points[self.turnpoint_index:] = r_points[self.turnpoint_index:] * (l_points[self.turnpoint_index]/r_points[self.turnpoint_index])
-
         #Coming in from right side
         dR = ( (-11./6)*points[i] + 3.*points[i+1] - (3./2)*points[i+2] + (1./3)*points[i+3] )/h
         
@@ -141,13 +136,26 @@ class RadialSolver:
         g = consts * (self.r(x_grid))**2 * (E - self.V(self.r(x_grid))) - (self.l+0.5)**2
         return g
     
-    def solve_ode(self, E, direction='right', endpoint=None):
+    def solve_ode(self, E, direction=None, endpoint=None):
         if endpoint is None:
             endpoint = self.turnpoint_index
-    
+        
+        if direction is None:
+            # If a direction isn't specified, recurse downward and integrate
+            # left and right sides.
+            l_points = self.solve_ode(E, direction='right', endpoint=endpoint)
+            r_points = self.solve_ode(E, direction='left', endpoint=endpoint)
+            points = np.zeros_like(self.xgrid)
+            points[:endpoint] = l_points[:endpoint] 
+            points[endpoint:] = r_points[endpoint:] * (l_points[endpoint]/r_points[endpoint])
+            
+            points = self.normalize(points)
+            return points
+        
+        
         if self.verbose:
             print("Calculating points...")
-
+        
         points = ode.numerov(self.schrod_eqn, i0 = 0, i_slope = -1,
                                    x_grid = self.xgrid,
                                    direction = direction,
@@ -165,6 +173,11 @@ class RadialSolver:
         self.solution_energy = energy
         
         return energy
+    
+    def normalize(self, points):
+        intpoints = points**2 * self.rgrid
+        intval = integrate.simps(intpoints,self.xgrid)
+        return points/np.sqrt(intval)
     
 if __name__ == "__main__":
     print("Begin...")
