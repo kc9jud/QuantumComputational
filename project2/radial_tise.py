@@ -54,12 +54,18 @@ class RadialSolver:
 #        if verbose:
 #            print("Calculating initial turning point...")
 #        self.calc_turnpoint_index((self.Emin+self.Emax)/2)
+        max_kin = np.max(self.kinetic_energy(self.Emin, self.xgrid))
+        if max_kin < 0:
+            self.Emin -= max_kin
+            print(self.Emin,self.Emax)
+            if self.Emin > self.Emax:
+                raise ValueError("Invalid energy search range: ("+self.Emin+","+self.Emax+")")
         
         self.solution_points = None
         self.solution_energy = None
         
     
-    def potential_energy(self, E, x):
+    def kinetic_energy(self, E, x):
         return E - (self.V(self.r(x)) + (H_BAR**2 * self.l * (self.l+1) / (2*self.mass*self.r(x)**2)))
     
 #     def calc_turnpoint_index(self):
@@ -83,11 +89,11 @@ class RadialSolver:
         if self.verbose:
             print("Calculating classical turning point for energy",E)
         
-        pot_en_points = self.potential_energy(E, self.xgrid)
+        kin_en_points = self.kinetic_energy(E, self.xgrid)
         if (self.l == 0):
-            self.turnpoint_index = rootfind.discrete(pot_en_points, 1, verbose=self.verbose)
+            self.turnpoint_index = rootfind.discrete(kin_en_points, 1, verbose=self.verbose)
         else:
-            self.turnpoint_index = rootfind.discrete(pot_en_points, 2, verbose=self.verbose)
+            self.turnpoint_index = rootfind.discrete(kin_en_points, 2, verbose=self.verbose)
         
         if self.verbose:
             print("Classical turning point index is",self.turnpoint_index)
@@ -179,7 +185,7 @@ if __name__ == "__main__":
         kpoints.append(solver.calculate_kink(ep))
     plt.plot(Epoints,kpoints)
     plt.show()
-    solver.verbose = True
+#    solver.verbose = True
     
     energy = solver.solve()
     print("E=",energy)
@@ -196,3 +202,11 @@ if __name__ == "__main__":
     plt.plot(solver.rgrid,(left_points)**2, marker='.')
     plt.plot(solver.rgrid,(right_points)**2, marker='.')
     plt.show()
+    
+    
+    
+    
+    solver = RadialSolver(V, (-.75,-0.2), 1, 1*BOHR, M_E)
+    energy = solver.solve()
+    print("E=",energy)
+    
