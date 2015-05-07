@@ -214,11 +214,11 @@ if __name__ == "__main__":
     plt.show()
     
     
-    def V_Yuk(r):
+    def V_WS(r):
         return -50/(1+np.exp((r-1)/.05))
     
-    solver = RadialSolver(V_Yuk, (-41,-39), 1, 1*BOHR, M_E, verbose=False)
-    plt.plot(solver.xgrid, V_Yuk(solver.rgrid), marker='.')
+    solver = RadialSolver(V_WS, (-41,-39), 1, 1*BOHR, M_E, verbose=False)
+    plt.plot(solver.xgrid, V_WS(solver.rgrid), marker='.')
     plt.show()
     print("Plotting kink vs. E...")
     Epoints=np.linspace(-45,-1,500)
