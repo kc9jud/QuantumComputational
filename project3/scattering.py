@@ -68,27 +68,27 @@ class ScatteringSolver:
     def k(self, r, l):
         """Finds the wave number, k, based on the radius and l value
         using the Schrodinger equation.
-
+        
         Arguments:
            r: radius
            l: angular momentum number
         Returns:
            k: wave number
         """
-#        k = sqrt( (2*self.mass/H_BAR**2)(self.E - self.V(r)) )
+        
         k = sqrt(self.schrod_eqn(r, l))
         return k
     
     def schrod_eqn(self, r, l):
         """Defines the Schrodinger equation.
-
+        
         Arguments:
            r: radius
            l: angular momentum number
         Returns:
            g: value of the Schrodinger equation
         """
-
+        
         consts = 2*self.mass / H_BAR**2
         g = consts*(self.E - self.V(r)) - l*(l+1)/r**2
         return g
@@ -96,13 +96,13 @@ class ScatteringSolver:
     def solve_ode(self, l):
         """Solves the Schrodinger equation for a given l value using the Numerov method
         in the ode module.
-
+        
         Arguments:
            l: angular momentum number
         Returns:
            points: set of points containing the solution to the Schrodinger equation
         """
-
+        
         if self.verbose:
             print("Calculating points...")
         
@@ -113,7 +113,7 @@ class ScatteringSolver:
         points = np.zeros_like(self.rgrid)
         points[1] = 1/self.stepsize # This is an arbitrary -- it sets the normalization.
         points[2] = points[1] * (2 - self.schrod_eqn(self.rgrid[1],l)*(self.stepsize**2))
-
+        
         points = ode.numerov(self.schrod_eqn, x_grid = self.rgrid, y_grid=points,
                              start_index=1, end_index = self.xn,
                              verbose=self.verbose, l=l)
@@ -122,15 +122,15 @@ class ScatteringSolver:
     
     def calc_phase_shift(self, l, points):
         """Finds the phase shift of the wavelength using the method described in Gianozzi.
-	
+        
         Arguments:
            l: angular momentum number
            points: the array holding the solution to the Schrodinger equation
         Returns:
            delta: the phase shift
         """
-
-	#set up r1 and r2 using a
+        
+        #set up r1 and r2 using a
         r2 = self.rgrid[-1]
         wavelength = 2*np.pi/self.ki
         r1_index = -int(2*wavelength/self.stepsize)
@@ -161,7 +161,7 @@ class ScatteringSolver:
         """Finds the phase shifts for a number of different l values.
         Stores the resultant phase shifts in phase_shifts
         """
-
+        
         l = 0
         rmax = self.a
         if lmax is None:
@@ -175,12 +175,12 @@ class ScatteringSolver:
         self.phase_shifts = np.array(temp_li)
     
     def f(self, theta):
-        """
-
+        """Computes the (complex) scattering amplitude f(theta).
+        
         Arguments:
-           theta:
+           theta: scattering angle (radians)
         Returns:
-           retval/ki:
+           f: the scattering amplitude
         """
 
         retval = 0
@@ -209,26 +209,26 @@ class ScatteringSolver:
     
     def plot_potential(self, **kwargs):
         """Plots the current potential data when called.
-
+        
         Arguments:
            **kwargs: Any additional arguments to plot
         Returns:
            Displays the plot
         """
-
+        
         plt.plot(self.rgrid, self.V(solv.rgrid), marker='.', **kwargs)
         plt.show()
     
     def plot_wave_functions(self, **kwargs):
         """Displays a plot of the wave functions. Nice for watching the phase shift decrease
         and the wavefunctions align.
-
+        
         Arguments:
            **kwargs: Any additional plotting arguments
         Returns:
            Displays plot
         """
-
+        
         rgrid = self.rgrid[1:]
         for l in range(len(self.phase_shifts)):
             points = self.solve_ode(l)[1:]/rgrid
@@ -237,13 +237,13 @@ class ScatteringSolver:
     
     def plot_diff_cross_sect(self, **kwargs):
         """Displays a plot of the differential cross section.
-
+        
         Arguments:
            **kwargs: Any additional arguments to plot
         Returns:
            Displays the plot
         """
-
+        
         tgrid = np.linspace(-np.pi,np.pi,361)
         plt.polar(tgrid,self.diff_cross_sect(tgrid), marker='.', **kwargs)
         plt.show()
@@ -251,13 +251,13 @@ class ScatteringSolver:
 def V_WS(r):
     """Defines the Woods-Saxon potential function. Options are , Lennard-Jones, and
     Yukawa potentials.
-
+    
     Arguments:
        r: radius
     Returns:
        Potential value
     """
-
+    
     # Here's a nice Woods-Saxon potential
     return -50/(1+np.exp((r-.5)/.05))
 
@@ -271,7 +271,7 @@ def V_LJ(r):
     Returns:
        Potential value
     """
-
+    
     #Here's a not nice Lennard-Jones potential
     return eps*( ((sig/r)**12) - 2*((sig/r)**6))
 
@@ -283,7 +283,7 @@ def V_Yuk(r):
     Returns:
        Potential value
     """
-
+    
     #Yukawa potential
     return -np.exp(-r)/r
 
