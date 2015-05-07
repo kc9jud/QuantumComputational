@@ -56,10 +56,7 @@ class RadialSolver:
 #        self.calc_turnpoint_index((self.Emin+self.Emax)/2)
         max_kin = np.max(self.kinetic_energy(self.Emin, self.xgrid))
         if max_kin < 0:
-            self.Emin -= max_kin
-            print(self.Emin,self.Emax)
-            if self.Emin > self.Emax:
-                raise ValueError("Invalid energy search range: ("+self.Emin+","+self.Emax+")")
+            raise ValueError("Energy range classically forbidden:("+str(self.Emin)+","+str(self.Emax)+")")
         
         self.solution_points = None
         self.solution_energy = None
