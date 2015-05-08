@@ -318,9 +318,17 @@ def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=No
     return None
 
 def discrete(ypoints, nroot, verbose=False):
+    """Finds the index of a root of a given number.
+    
+    Arguments:
+       ypoints: 2D array of points in which to look for the root
+       nroot: Number of the root we want
+    Returns:
+       i: Index of the root
+    """
+
     i=0
-    n=1
-   
+    n=1   
     while(i < len(ypoints)-1):
         if(ypoints[i]*ypoints[i+1] < 0):
             if(n==nroot):
