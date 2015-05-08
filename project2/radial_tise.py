@@ -183,9 +183,10 @@ if __name__ == "__main__":
     print("Begin...")
     
     def V(r):
-#        return np.zeros_like(r)
         return -1/r
     
+    #############
+    # Begin step-by-step plots
     solver = RadialSolver(V, (-.75,-0.4), 0, 1*BOHR, M_E, verbose=False)
     
     print("Plotting kink vs. E...")
@@ -195,7 +196,6 @@ if __name__ == "__main__":
         kpoints.append(solver.calculate_kink(ep))
     plt.plot(Epoints,kpoints)
     plt.show()
-#    solver.verbose = True
     
     energy = solver.solve()
     print("E=",energy)
@@ -212,14 +212,36 @@ if __name__ == "__main__":
     plt.plot(solver.rgrid,(left_points)**2, marker='.')
     plt.plot(solver.rgrid,(right_points)**2, marker='.')
     plt.show()
+    #############
     
+    #############
+    # Begin plotting sets of hydrogen wave functions
+    erange = np.array([-1.1,-0.9])
+    for n in range(1,5):
+        for l in range(n):
+            solver = RadialSolver(V, list(erange/(2*n**2)), l, 1*BOHR, M_E, verbose=False)
+            solver.solve()
+            plt.plot(solver.rgrid, solver.solution_points, 
+                     marker='.', label="l = "+str(l))
+            print("Energy for n = "+str(n)+", l = "+str(l)+":",solver.solution_energy)
+        plt.legend()
+        plt.xlabel('$r/a_0$')
+        plt.ylabel('$\psi (x)$')
+        plt.title('Hydrogen wave functions for n = '+str(n))
+        plt.show()
+    #############
     
+    #############
+    # Begin Woods-Saxon potential code
     def V_WS(r):
         return -50/(1+np.exp((r-1)/.05))
     
+    # Plot Woods-Saxon potential
     solver = RadialSolver(V_WS, (-41,-39), 1, 1*BOHR, M_E, verbose=False)
     plt.plot(solver.xgrid, V_WS(solver.rgrid), marker='.')
     plt.show()
+    
+    # Plot kink
     print("Plotting kink vs. E...")
     Epoints=np.linspace(-45,-1,500)
     kpoints=[]
@@ -227,7 +249,8 @@ if __name__ == "__main__":
         kpoints.append(solver.calculate_kink(ep))
     plt.plot(Epoints,kpoints, marker='.')
     plt.show()
-
+    
+    # Actually solve and plot
     energy = solver.solve()
     print("E=",energy)
     plt.plot(solver.rgrid, solver.solution_points, marker='.')
