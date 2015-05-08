@@ -209,6 +209,8 @@ if __name__ == "__main__":
     kpoints=[]
     for ep in Epoints:
         kpoints.append(solver.calculate_kink(ep))
+    plt.xlabel('E')
+    plt.ylabel('$\psi^\prime_{right}(c) - \psi^\prime_{left}(c)$')
     plt.plot(Epoints,kpoints)
     plt.show()
     
@@ -241,7 +243,7 @@ if __name__ == "__main__":
             print("Energy for n = "+str(n)+", l = "+str(l)+":",solver.solution_energy)
         plt.legend()
         plt.xlabel('$r/a_0$')
-        plt.ylabel('$\psi (x)$')
+        plt.ylabel('$\psi (r)$')
         plt.title('Hydrogen wave functions for n = '+str(n))
         plt.show()
     #############
@@ -252,21 +254,38 @@ if __name__ == "__main__":
         return -50/(1+np.exp((r-1)/.05))
     
     # Plot Woods-Saxon potential
-    solver = RadialSolver(V_WS, (-41,-39), 1, 1*BOHR, M_E, verbose=False)
-    plt.plot(solver.xgrid, V_WS(solver.rgrid), marker='.')
+    solver = RadialSolver(V_WS, (-41,-39), 0, .05*BOHR, M_E, verbose=False)
+    plt.plot(solver.rgrid, V_WS(solver.rgrid), marker='.')
+    plt.xlabel('r/a')
+    plt.ylabel('$V(r)$')
     plt.show()
     
     # Plot kink
     print("Plotting kink vs. E...")
-    Epoints=np.linspace(-45,-1,500)
+    Epoints=np.linspace(-46,-1,500)
     kpoints=[]
     for ep in Epoints:
         kpoints.append(solver.calculate_kink(ep))
+    plt.xlabel('E')
+    plt.ylabel('$\psi^\prime_{right}(c) - \psi^\prime_{left}(c)$')
     plt.plot(Epoints,kpoints, marker='.')
     plt.show()
     
     # Actually solve and plot
+    solver = RadialSolver(V_WS, (-48,-45), 0, .05*BOHR, M_E, verbose=False)
     energy = solver.solve()
+    plt.plot(solver.rgrid, solver.solution_points, marker='.', label='n = 0')
     print("E=",energy)
-    plt.plot(solver.rgrid, solver.solution_points, marker='.')
+    solver = RadialSolver(V_WS, (-35,-25), 0, .05*BOHR, M_E, verbose=False)
+    energy = solver.solve()
+    plt.plot(solver.rgrid, solver.solution_points, marker='.', label='n = 1')
+    print("E=",energy)
+    solver = RadialSolver(V_WS, (-15,-10), 0, .05*BOHR, M_E, verbose=False)
+    energy = solver.solve()
+    plt.plot(solver.rgrid, solver.solution_points, marker='.', label='n = 0')
+    print("E=",energy)
+    plt.legend()
+    plt.title('Woods-Saxon s-wave functions')
+    plt.xlabel('r/a')
+    plt.ylabel('$\psi(r)$')
     plt.show()
