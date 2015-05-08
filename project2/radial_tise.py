@@ -83,6 +83,14 @@ class RadialSolver:
 #             print("Classical turning point index is",self.turnpoint_index)
     
     def calc_turnpoint_index(self, E):
+        """Finds the classical turning point given an energy.
+
+        Arguments:
+           E: energy
+        Returns:
+           Sets the index of the turning point
+        """
+
         if self.verbose:
             print("Calculating classical turning point for energy",E)
         
@@ -113,6 +121,15 @@ class RadialSolver:
 #        pass
     
     def calculate_kink(self, E):
+        """Finds the kink, or the difference between the first derivatives at the matching point,
+        using finite difference methods.
+
+        Arguments:
+           E: energy
+        Returns:
+           kink: difference between dR and dL
+        """
+
         self.calc_turnpoint_index(E)
         
         i = self.turnpoint_index
@@ -132,11 +149,30 @@ class RadialSolver:
         return kink
     
     def schrod_eqn(self, x_grid, E):
+        """Contains the Schrodinger equation.
+
+        Arguments:
+           x_grid: x values
+           E: energy
+        Returns:
+           g: evaluation of Schrodinger equation
+        """
+
         consts = 2*self.mass / H_BAR**2
         g = consts * (self.r(x_grid))**2 * (E - self.V(self.r(x_grid))) - (self.l+0.5)**2
         return g
     
     def solve_ode(self, E, direction=None, endpoint=None):
+        """Solves the Schrodinger equation using the Numerov method.
+
+        Arguments:
+           E: energy
+           direction: which way the solver works
+           endpoint: sets a particular stopping point
+        Returns:
+           points: solution to differential equation
+        """
+
         if endpoint is None:
             endpoint = self.turnpoint_index
         
@@ -175,6 +211,14 @@ class RadialSolver:
         return energy
     
     def normalize(self, points):
+        """Normalize the solved wave function.
+        
+        Arguments:
+           points: contains the wave function
+        Returns:
+           normalized points
+        """
+
         intpoints = points**2 * self.rgrid
         intval = integrate.simps(intpoints,self.xgrid)
         return points/np.sqrt(intval)
