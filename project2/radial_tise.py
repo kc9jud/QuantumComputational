@@ -51,36 +51,15 @@ class RadialSolver:
         self.gen_xgrid(num_steps)
         self.rgrid = self.r(self.xgrid)
         
-#        if verbose:
-#            print("Calculating initial turning point...")
-#        self.calc_turnpoint_index((self.Emin+self.Emax)/2)
         max_kin = np.max(self.kinetic_energy(self.Emin, self.xgrid))
         if max_kin < 0:
             raise ValueError("Energy range classically forbidden:("+str(self.Emin)+","+str(self.Emax)+")")
         
         self.solution_points = None
         self.solution_energy = None
-        
     
     def kinetic_energy(self, E, x):
         return E - (self.V(self.r(x)) + (H_BAR**2 * self.l * (self.l+1) / (2*self.mass*self.r(x)**2)))
-    
-#     def calc_turnpoint_index(self):
-#         if self.verbose:
-#             print("Calculating classical turning point")
-#         
-#         # wrap the function for use with rootfind; find the zero of potential energy
-#         pot_en = lambda x: self.potential_energy(self.Emin, x)
-# #        turnpoint = rootfind.hybrid_secant(f = pot_en, root_interval = ((self.xmin+self.xmax)/2,self.xmax), verbose=self.verbose)
-#         turnpoint = rootfind.hybrid_secant(f = pot_en, root_interval = (self.xmin,self.xmax), verbose=self.verbose)
-# #        turnpoint = 0
-#         
-#         # find the last x-point which is in the classically-allowed region
-#         self.turnpoint_index = np.searchsorted(self.xgrid,turnpoint) - 1
-#         
-#         if self.verbose:
-#             print("Classical turning point is at r =",self.r(self.xgrid[self.turnpoint_index]))
-#             print("Classical turning point index is",self.turnpoint_index)
     
     def calc_turnpoint_index(self, E):
         if self.verbose:
@@ -95,7 +74,6 @@ class RadialSolver:
         if self.verbose:
             print("Classical turning point index is",self.turnpoint_index)
             print("Classical turning point is at r =",self.rgrid[self.turnpoint_index])
-
     
     def zerosV(self, r):
         return np.zeros_like(x)
@@ -105,12 +83,6 @@ class RadialSolver:
     
     def r(self, x):
         return np.exp(x) * self.a
-    
-#     def Vx(self, x):
-#         return self.V(self.r(x))
-    
-#    def calculate_deriv(self, points, direc):
-#        pass
     
     def calculate_kink(self, E):
         self.calc_turnpoint_index(E)
@@ -166,7 +138,6 @@ class RadialSolver:
     def solve(self):
         energy = rootfind.hybrid_secant(f = self.calculate_kink,
                         root_interval = (self.Emin,self.Emax),
-#                        tolerance = 1e-8,
                         verbose = self.verbose)
         
         self.solution_points = self.solve_ode(energy)
