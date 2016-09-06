@@ -4,7 +4,7 @@
 # Spring 2014
 
 """ rootfind.py -- library of rootfinding routines
-     
+
     Language: Python 3
     Mark A. Caprio
     University of Notre Dame
@@ -19,7 +19,7 @@ def bisection(f,interval,tolerance,verbose=False):
 
     The 'approximation' x_i at each iteration is defined by the
     midpoint of the interval.
-    
+
     The 'error' x_i-x_(i-1) is defined by the change in midpoint from
     the midpoint of the last interval.  (Of course, for bisection,
     that is always half the width of the new interval.)
@@ -53,7 +53,7 @@ def bisection(f,interval,tolerance,verbose=False):
 
         # increment iteration count
         iteration_count += 1
-        
+
         # evaluate function
         fxa = f(xa)
         fxb = f(xb)
@@ -80,7 +80,7 @@ def bisection(f,interval,tolerance,verbose=False):
         if (verbose):
             print("iteration", iteration_count, "(bisection):",
                   "interval", (xa, xb), "root", xm)
-            
+
     return xm
 
 def newton(f,fp,x_guess,tolerance,verbose=False,max_iterations=100):
@@ -88,7 +88,7 @@ def newton(f,fp,x_guess,tolerance,verbose=False,max_iterations=100):
 
     The 'approximation' x_i at each iteration is defined by Newton's
     method, in terms of the previous approximation x_(i-1).
-    
+
     The 'error' x_i-x_(i-1) is defined by the difference in successive
     approximations.
 
@@ -126,16 +126,16 @@ def newton(f,fp,x_guess,tolerance,verbose=False,max_iterations=100):
 
 def hybrid(f,fp,interval,tolerance,x_guess=None,verbose=False,max_iterations=100):
   """Find the root of a function using the hybridized Newton-Raphson method.
-  
+
   This method enforces that a root fall within a certain interval, thus solving
   some of the stability problems of the Newton-Raphson method.
   """
-  
+
   # set up our interval and iteration counter
   xmin = min(interval)
   xmax = max(interval)
   iter = 0
-  
+
   # make an initial guess if we weren't given one
   # and check sanity of initial guess
   if x_guess == None:
@@ -143,12 +143,12 @@ def hybrid(f,fp,interval,tolerance,x_guess=None,verbose=False,max_iterations=100
   if (x_guess < xmin) or (x_guess > xmax):
     raise ValueError("Initial guess is not within given interval")
   x = x_guess
-  
+
   while (iter<max_iterations):
     iter += 1
     # Try Newton's method first
     x_guess = x - f(x)/fp(x)
-    
+
     if (x_guess >= xmin) and (x_guess <= xmax):
       # Newton's method gave us a guess inside the interval
       newton = True
@@ -164,14 +164,14 @@ def hybrid(f,fp,interval,tolerance,x_guess=None,verbose=False,max_iterations=100
       xmax = x_guess
     else:
       xmin = x_guess
-    
+
     if verbose:
       print('Iteration:',iter,'Root Approximation:',x,'Newton:',newton,
             'Approximate Error:',error,'Interval:',xmin,xmax)
-    
+
     if (error<tolerance):
       return x
-  
+
   return None
 
 def secant(f,x_guess,x_oldguess,tolerance,verbose=False,max_iterations=100):
@@ -179,7 +179,7 @@ def secant(f,x_guess,x_oldguess,tolerance,verbose=False,max_iterations=100):
 
     The 'approximation' x_i at each iteration is defined by Newton's
     method, in terms of the previous approximation x_(i-1) and x_(i-2).
-    
+
     The 'error' x_i-x_(i-1) is defined by the difference in successive
     approximations.
 
@@ -217,23 +217,23 @@ def secant(f,x_guess,x_oldguess,tolerance,verbose=False,max_iterations=100):
     return None
 
 def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=None,
-                  verbose=False, max_iterations=100, f_tolerance=10e-8, **kwargs):
+                  verbose=False, max_iterations=100, f_tolerance=1e-8, **kwargs):
     """ Find root by hybridized Newton's method with the secant approximation.
-    
+
     The 'approximation' x_i at each iteration is defined by Newton's
     method, in terms of the previous approximation x_(i-1) and x_(i-2).
     If Newton's method gives a point outside the interval, the algorithm
     falls back on bisection.
-    
+
     The 'error' x_i-x_(i-1) is defined by the difference in successive
     approximations.
-    
+
     Returns None if the maximum number of iterations is reached
     without satisfying the tolerance.  Also returns None if
     rootfinding lands on point where f has zero slope.  Otherwise,
     returns final approximation x_i when termination condition is
     reached.
-    
+
     f: function for rootfinding
     x_guess: initial guess point
     x_oldguess: previous guess point
@@ -241,10 +241,10 @@ def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=No
     tolerance: error at which search should terminate
     verbose (optional): whether or not to print iteration log
     max_iterations (optional): limit on number of iterations
-    
+
     (c) Patrick Fasano, 2015
     """
-    
+
     # make an initial guess if we weren't given one
     # and check sanity of initial guess
     (xmin,xmax) = root_interval
@@ -254,26 +254,26 @@ def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=No
     if (x_guess < xmin) or (x_guess > xmax):
         raise ValueError("Initial guess is not within given interval")
     if (x_oldguess < xmin) or (x_oldguess > xmax):
-        raise ValueError("Previous guess is not within given interval")    
-    
+        raise ValueError("Previous guess is not within given interval")
+
     # set up for first iteration
     x = x_guess
     oldguess = x_oldguess
     error = 2*tolerance  # set error big enough to get past while condition
     iteration_count = 0
-    
+
     f_xmin = f(xmin,     **kwargs)
     f_xmax = f(xmax,     **kwargs)
     f_oldguess = f(oldguess, **kwargs)
     f_x = f(x, **kwargs)
-    
+
     while iteration_count<max_iterations:
         if (f_xmin*f_xmax > 0):
             raise ValueError("Even number of roots on interval ("+str(xmin)+","+str(xmax)+")")
-        
+
         if verbose:
             print("Looking for roots in interval (",xmin,",",xmax,")")
-        
+
         try:
             newguess=x-f_x*(x-oldguess)/(f_x - f_oldguess)
         except ZeroDivisionError:
@@ -281,7 +281,7 @@ def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=No
             newton = False
             newguess = (xmin+xmax)/2
             error = abs(xmax - newguess)
-        
+
         if (newguess >= xmin) and (newguess <= xmax):
             # Newton's method gave us a guess inside the interval
             newton = True
@@ -291,15 +291,15 @@ def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=No
             newton = False
             newguess = (xmin+xmax)/2
             error = abs(xmax - newguess)
-        
-        
+
+
         if verbose:
             print('Iteration: ',iteration_count+1,' Root Approximation: ',newguess,' Approximate Error: ',error)
         if abs(error)<tolerance:# and abs(f_x)<tolerance:
             return newguess
 #         elif abs(error)<tolerance and abs(f_x)>tolerance:
 #             raise ValueError("Function appears to diverge to +/-inf at "+str(newguess))
-        
+
         f_newguess = f(newguess, **kwargs)
         product = f_newguess*f_xmin
         if (product < 0):
@@ -308,18 +308,18 @@ def hybrid_secant(f, root_interval, tolerance=1e-10, x_guess=None, x_oldguess=No
         elif (product > 0):
             xmin = newguess
             f_xmin = f_newguess
-        
+
         oldguess=x
         f_oldguess=f_x
         x=newguess
         f_x = f_newguess
         iteration_count+=1
-    
+
     return None
 
 def discrete(ypoints, nroot, verbose=False):
     """Finds the index of a root of a given number.
-    
+
     Arguments:
        ypoints: 2D array of points in which to look for the root
        nroot: Number of the root we want
@@ -328,7 +328,7 @@ def discrete(ypoints, nroot, verbose=False):
     """
 
     i=0
-    n=1   
+    n=1
     while(i < len(ypoints)-1):
         if(ypoints[i]*ypoints[i+1] < 0):
             if(n==nroot):
@@ -355,7 +355,7 @@ if (__name__ == "__main__"):
 #        func_values.append(f_bench(xaxis))
 #    matplotlib.pyplot.plot(x_values,func_values,"b-")
 #    matplotlib.pyplot.show()
-    
+
     # bisection tests
 
     print("bisection(f_bench,(-1,0),1e-10,verbose=True)")
@@ -366,15 +366,15 @@ if (__name__ == "__main__"):
 
     print("newton(f_bench,fp_bench,0.5,1e-10,verbose=True)")
     print(newton(f_bench,fp_bench,.5,1e-10,verbose=True))
-    
+
     print("hybrid(f_bench,fp_bench,(0,1),1e-10,0.5,verbose=True)")
     print(hybrid(f_bench,fp_bench,(0,1),1e-10,0.5,verbose=True))
-    
+
     print("hybrid(f_bench,fp_bench,(0,10),1e-10,5,verbose=True)")
     print(hybrid(f_bench,fp_bench,(0,10),1e-10,5,verbose=True))
-    
+
     print("hybrid(f_bench,fp_bench,(0,15),1e-10,10,verbose=True)")
     print(hybrid(f_bench,fp_bench,(0,15),1e-10,10,verbose=True))
-    
+
     print("secant(f_bench,0.45,0.55,1e-10,verbose=True)")
     print(secant(f_bench,0.45,0.55,1e-10,verbose=True))
