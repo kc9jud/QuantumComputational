@@ -15,14 +15,16 @@ import ode
 import rootfind
 
 # ##########CONSTANTS##########
-H_BAR = 1.05457e-34 # J s
-M_E = 9.10938e-31 # kg
-M_P = 1.67262e-27 # kg
-BOHR = 5.29177e-11 # m
-EV = 1.602177e-19 # J
+## MKS units
+# H_BAR = 1.05457e-34 # J s
+# M_E = 9.10938e-31 # kg
+# M_P = 1.67262e-27 # kg
+# BOHR = 5.29177e-11 # m
+# EV = 1.602177e-19 # J
 # #############################
 
 ##########CONSTANTS##########
+## Atomic (Hartree) units
 # H_BAR = 1 #
 # M_E = 1 #
 # M_P = 1836 # kg
@@ -30,8 +32,17 @@ EV = 1.602177e-19 # J
 # EV = 1/27.211 # hartree
 #############################
 
+##########CONSTANTS##########
+## Nuclear physics units
+H_BAR = 1
+M_P = 1
+C = 1
+FM = 4.755
+MEV = 1.065789e-3
+#############################
+
 class RadialSolver:
-    xmin = -12
+    xmin = -14
     xmax = 5
 
 
@@ -78,6 +89,9 @@ class RadialSolver:
             self.turnpoint_index = rootfind.discrete(kin_en_points, 1, verbose=self.verbose)
         else:
             self.turnpoint_index = rootfind.discrete(kin_en_points, 2, verbose=self.verbose)
+
+        if (self.turnpoint_index is None):
+            self.turnpoint_index = int(len(kin_en_points)/2)
 
         if self.verbose:
             print("Classical turning point index is",self.turnpoint_index)
@@ -164,10 +178,10 @@ class RadialSolver:
         if self.verbose:
             print("Calculating points...")
 
-        points = ode.numerov(self.schrod_eqn, i0 = 0, i_slope = -1,
-                                   x_grid = self.xgrid,
-                                   direction = direction,
-                                   end_index = endpoint,verbose=self.verbose, E=E)
+        points = ode.numerov(self.schrod_eqn, i0=0, i_slope=1,
+                             x_grid=self.xgrid,
+                             direction=direction,
+                             end_index=endpoint, verbose=self.verbose, E=E)
         # Convert back from y(x) to chi(x)
         return points*np.sqrt(self.rgrid)
 
